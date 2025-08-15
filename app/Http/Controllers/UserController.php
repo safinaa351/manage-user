@@ -19,33 +19,41 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // Add debug headers to confirm we're in the API method
-    return response()->json([
-        'debug' => 'This is the API store method',
-        'method' => $request->method(),
-        'path' => $request->path(),
-        'url' => $request->url(),
-        'headers' => $request->headers->all(),
-        'body' => $request->all()
-    ], 200);
+            try {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email:rfc,dns|unique:users',
+                'phone' => 'required|numeric|digits_between:10,15',
+                'department' => 'required|string|max:255',
+                'is_active' => 'boolean'
+            ]);
+
+            // default value is_active is true
+            $validatedData['is_active'] = $validatedData['is_active'] ?? true;
+
+            $user = User::create($validatedData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User created successfully',
+                'data' => $user
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while creating the user',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     
-    /* Comment out the actual logic temporarily
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email:rfc,dns|unique:users',
-        'phone' => 'required|numeric|digits_between:10,15',
-        'department' => 'required|string|max:255',
-        'is_active' => 'boolean'
-    ]);
-
-    $user = User::create($request->all());
-
-    return response()->json([
-        'success' => true,
-        'message' => 'User created successfully',
-        'data' => $user
-    ], 201);
-    */
     }
 
     public function show($id)
@@ -67,6 +75,7 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
+        try {
         $user = User::find($id);
         
         if (!$user) {
@@ -76,7 +85,7 @@ class UserController extends Controller
             ], 404);
         }
 
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email:rfc,dns|unique:users,email,' . $id,
             'phone' => 'required|numeric|digits_between:10,15',
@@ -84,13 +93,28 @@ class UserController extends Controller
             'is_active' => 'boolean'
         ]);
 
-        $user->update($request->all());
+        $user->update($validatedData);
 
         return response()->json([
             'success' => true,
             'message' => 'User updated successfully',
-            'data' => $user
+            'data' => $user->fresh() // Get the updated data
         ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while updating the user',
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 
     public function destroy($id)
