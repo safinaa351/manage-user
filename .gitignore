@@ -10,8 +10,7 @@ node_modules
 npm-debug.log
 
 # Environment files
-.env*
-!.env.example
+.env
 
 # Storage and cache
 storage/app/*
