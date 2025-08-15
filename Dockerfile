@@ -37,14 +37,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files first for better layer caching
-COPY composer.json composer.lock ./
+# Copy application code
+COPY . .
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-# Copy application code
-COPY . .
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html
