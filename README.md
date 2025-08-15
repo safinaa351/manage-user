@@ -23,8 +23,7 @@ Aplikasi manajemen user yang dibangun dengan Laravel. Aplikasi ini menyediakan i
 
 ### 1. Clone Repository
 ```bash
-git clone <repository-url>
-cd user-management-system
+git clone <https://github.com/safinaa351/manage-user.git>
 ```
 
 ### 2. Install Dependencies
@@ -63,7 +62,7 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-### 5. Jalankan Migration
+### 5. Setup Database
 ```bash
 # Buat database SQLite (jika menggunakan SQLite)
 touch database/database.sqlite
@@ -85,32 +84,6 @@ php artisan serve
 
 Aplikasi akan tersedia di: `http://localhost:8000`
 
-## 🌐 Deployment ke Railway
-
-### 1. Install Railway CLI
-```bash
-npm install -g @railway/cli
-```
-
-### 2. Login dan Setup
-```bash
-railway login
-railway init
-railway add mysql
-```
-
-### 3. Set Environment Variables
-```bash
-railway variables set APP_KEY=$(php artisan key:generate --show)
-railway variables set APP_ENV=production
-railway variables set APP_DEBUG=false
-```
-
-### 4. Deploy
-```bash
-railway up
-```
-
 ## 📱 Interface Web
 
 Akses aplikasi melalui browser untuk menggunakan interface web:
@@ -122,14 +95,6 @@ Akses aplikasi melalui browser untuk menggunakan interface web:
 
 ## 🔌 API Documentation
 
-Base URL: `http://localhost:8000/api` (development) atau `https://your-app.up.railway.app/api` (production)
+Base URL: `http://localhost:8000/api`
 
-### Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/users` | Ambil semua user | ❌ |
-| POST | `/users` | Buat user baru | ❌ |
-| GET | `/users/{id}` | Ambil user berdasarkan ID | ❌ |
-| PUT | `/users/{id}` | Update user | ❌ |
-| DELETE | `/users/{id}` | Hapus user | ❌ |
+### Postman Collection Link
