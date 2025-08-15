@@ -19,21 +19,33 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email:rfc,dns|unique:users',
-            'phone' => 'required|numeric|digits_between:10,15',
-            'department' => 'required|string|max:255',
-            'is_active' => 'boolean'
-        ]);
+        // Add debug headers to confirm we're in the API method
+    return response()->json([
+        'debug' => 'This is the API store method',
+        'method' => $request->method(),
+        'path' => $request->path(),
+        'url' => $request->url(),
+        'headers' => $request->headers->all(),
+        'body' => $request->all()
+    ], 200);
+    
+    /* Comment out the actual logic temporarily
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email:rfc,dns|unique:users',
+        'phone' => 'required|numeric|digits_between:10,15',
+        'department' => 'required|string|max:255',
+        'is_active' => 'boolean'
+    ]);
 
-        $user = User::create($request->all());
+    $user = User::create($request->all());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User created successfully',
-            'data' => $user
-        ], 201);
+    return response()->json([
+        'success' => true,
+        'message' => 'User created successfully',
+        'data' => $user
+    ], 201);
+    */
     }
 
     public function show($id)
