@@ -1,121 +1,82 @@
-# Use PHP-FPM with Nginx
-FROM php:8.2-fpm
+# Use PHP 8.2 with Apache
+FROM php:8.2-apache
+
+# Set working directory
+WORKDIR /var/www/html
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    nginx \
     git \
     curl \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    libzip-dev \
+    zip \
     unzip \
     nodejs \
     npm \
-    supervisor \
-    && rm -rf /var/lib/apt/lists/*
+    default-mysql-client \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
-
-# Install Composer
+# Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
-WORKDIR /var/www/html
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
 
-# Copy application files
-COPY . .
+# Copy existing application directory contents
+COPY . /var/www/html
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+# Copy existing application directory permissions
+COPY --chown=www-data:www-data . /var/www/html
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-RUN npm install && npm run build
+# Install PHP dependencies
+RUN composer install --optimize-autoloader --no-dev
 
-# Configure Nginx
-RUN echo 'server {\n\
-    listen $PORT;\n\
-    server_name _;\n\
-    root /var/www/html/public;\n\
-    index index.php index.html;\n\
-\n\
-    location / {\n\
-        try_files $uri $uri/ /index.php?$query_string;\n\
-    }\n\
-\n\
-    location ~ \.php$ {\n\
-        fastcgi_pass 127.0.0.1:9000;\n\
-        fastcgi_index index.php;\n\
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;\n\
-        include fastcgi_params;\n\
-    }\n\
-\n\
-    location ~ /\.ht {\n\
-        deny all;\n\
-    }\n\
-}' > /etc/nginx/sites-available/default
+# Create necessary directories and set permissions
+RUN mkdir -p /var/www/html/storage/logs \
+    && mkdir -p /var/www/html/storage/framework/cache \
+    && mkdir -p /var/www/html/storage/framework/sessions \
+    && mkdir -p /var/www/html/storage/framework/views \
+    && mkdir -p /var/www/html/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html/storage \
+    && chown -R www-data:www-data /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Configure Supervisor
-RUN echo '[supervisord]\n\
-nodaemon=true\n\
-user=root\n\
-logfile=/var/log/supervisor/supervisord.log\n\
-pidfile=/var/run/supervisord.pid\n\
-\n\
-[program:php-fpm]\n\
-command=php-fpm\n\
-stdout_logfile=/dev/stdout\n\
-stdout_logfile_maxbytes=0\n\
-stderr_logfile=/dev/stderr\n\
-stderr_logfile_maxbytes=0\n\
-autorestart=false\n\
-startretries=0\n\
-\n\
-[program:nginx]\n\
-command=nginx -g "daemon off;"\n\
-stdout_logfile=/dev/stdout\n\
-stdout_logfile_maxbytes=0\n\
-stderr_logfile=/dev/stderr\n\
-stderr_logfile_maxbytes=0\n\
-autorestart=false\n\
-startretries=0' > /etc/supervisor/conf.d/supervisord.conf
+# Configure Apache DocumentRoot to Laravel's public directory
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Create startup script
+# Create the start script
 RUN echo '#!/bin/bash\n\
 set -e\n\
 \n\
-export PORT=${PORT:-8080}\n\
-echo "Starting services on port: $PORT"\n\
+# Wait for database to be ready\n\
+echo "Waiting for database connection..."\n\
+until php artisan migrate:status &> /dev/null; do\n\
+  echo "Database not ready, waiting 5 seconds..."\n\
+  sleep 5\n\
+done\n\
 \n\
-# Update Nginx config with PORT\n\
-sed -i "s/listen \$PORT/listen $PORT/" /etc/nginx/sites-available/default\n\
+# Run database migrations\n\
+echo "Running database migrations..."\n\
+php artisan migrate --force\n\
 \n\
-# Laravel setup\n\
-echo "Clearing Laravel cache..."\n\
-php artisan config:clear || true\n\
-php artisan cache:clear || true\n\
+# Clear and cache config\n\
+php artisan config:clear\n\
+php artisan config:cache\n\
+php artisan route:cache\n\
+php artisan view:cache\n\
 \n\
-# Database setup - Direct migration (no checking)\n\
-echo "Setting up database tables..."\n\
-php artisan migrate:install --force 2>/dev/null || echo "Migration table exists"\n\
-php artisan migrate --force || echo "Migration completed with some errors"\n\
-\n\
-# Cache config for production\n\
-echo "Caching configurations..."\n\
-php artisan config:cache || true\n\
-\n\
-# Start services\n\
-echo "Starting PHP-FPM and Nginx..."\n\
-exec supervisord -c /etc/supervisor/conf.d/supervisord.conf' > /usr/local/bin/start.sh \
-    && chmod +x /usr/local/bin/start.sh
+# Start Apache in foreground\n\
+apache2-foreground' > /usr/local/bin/start.sh \
+&& chmod +x /usr/local/bin/start.sh
 
-# Expose port
-EXPOSE $PORT
+# Expose port 80
+EXPOSE 80
 
 # Start the application
 CMD ["/usr/local/bin/start.sh"]
