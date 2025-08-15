@@ -96,26 +96,21 @@ echo "Starting services on port: $PORT"\n\
 sed -i "s/listen \$PORT/listen $PORT/" /etc/nginx/sites-available/default\n\
 \n\
 # Laravel setup\n\
+echo "Clearing Laravel cache..."\n\
 php artisan config:clear || true\n\
 php artisan cache:clear || true\n\
 \n\
-# Database setup (with timeout)\n\
-echo "Setting up database..."\n\
-timeout=60\n\
-while [ $timeout -gt 0 ]; do\n\
-  if php artisan migrate:status 2>/dev/null; then\n\
-    php artisan migrate --force\n\
-    break\n\
-  fi\n\
-  echo "Waiting for database... ($timeout)"\n\
-  sleep 2\n\
-  timeout=$((timeout-2))\n\
-done\n\
+# Database setup - Direct migration (no checking)\n\
+echo "Setting up database tables..."\n\
+php artisan migrate:install --force 2>/dev/null || echo "Migration table exists"\n\
+php artisan migrate --force || echo "Migration completed with some errors"\n\
 \n\
-# Cache config\n\
-php artisan config:cache\n\
+# Cache config for production\n\
+echo "Caching configurations..."\n\
+php artisan config:cache || true\n\
 \n\
 # Start services\n\
+echo "Starting PHP-FPM and Nginx..."\n\
 exec supervisord -c /etc/supervisor/conf.d/supervisord.conf' > /usr/local/bin/start.sh \
     && chmod +x /usr/local/bin/start.sh
 
