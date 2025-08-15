@@ -80,7 +80,7 @@ exec apache2-foreground' > /usr/local/bin/start.sh \
     && chmod +x /usr/local/bin/start.sh
 
 # Expose port
-EXPOSE 80
+EXPOSE 8080
 
 # Start the application
 CMD ["/usr/local/bin/start.sh"]
