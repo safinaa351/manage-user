@@ -17,4 +17,7 @@ class User extends Model
         'department'
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 }

@@ -150,7 +150,7 @@ class UserController extends Controller
 
     public function webStore(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email:rfc,dns|unique:users',
             'phone' => 'required|numeric|digits_between:10,15',
@@ -158,7 +158,9 @@ class UserController extends Controller
             'is_active' => 'boolean'
         ]);
 
-        User::create($request->all());
+        $validatedData['is_active'] = $validatedData['is_active'] ?? true;
+
+        User::create($validatedData);
 
         return redirect()->route('users.index')->with('success', 'User created successfully!');
     }
@@ -173,7 +175,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email:rfc,dns|unique:users,email,' . $id,
             'phone' => 'required|numeric|digits_between:10,15',
@@ -181,7 +183,9 @@ class UserController extends Controller
             'is_active' => 'boolean'
         ]);
 
-        $user->update($request->all());
+        $validatedData['is_active'] = $request->has('is_active') ? true : false;
+
+        $user->update($validatedData);
 
         return redirect()->route('users.index')->with('success', 'User updated successfully!');
     }

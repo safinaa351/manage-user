@@ -32,14 +32,9 @@
 
                         <div class="mb-3">
                             <label for="department" class="form-label">Department *</label>
-                            <select class="form-select" id="department" name="department" required>
-                                <option value="">Select Department</option>
-                                <option value="IT" {{ old('department', $user->department) == 'IT' ? 'selected' : '' }}>IT</option>
-                                <option value="HR" {{ old('department', $user->department) == 'HR' ? 'selected' : '' }}>HR</option>
-                                <option value="Finance" {{ old('department', $user->department) == 'Finance' ? 'selected' : '' }}>Finance</option>
-                                <option value="Marketing" {{ old('department', $user->department) == 'Marketing' ? 'selected' : '' }}>Marketing</option>
-                                <option value="Operations" {{ old('department', $user->department) == 'Operations' ? 'selected' : '' }}>Operations</option>
-                            </select>
+                            <input type="text" class="form-control" id="department" name="department" 
+                                    value="{{ old('department') }}" required 
+                                    placeholder="Enter department name">
                         </div>
 
                         <div class="mb-3">
