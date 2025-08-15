@@ -37,13 +37,12 @@
                         </div>
 
                         <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="is_active" 
-                                       name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="is_active">
-                                    Active User
-                                </label>
-                            </div>
+                            <label for="is_active" class="form-label">Status *</label>
+                            <select class="form-select" id="is_active" name="is_active" required>
+                                <option value="">Select Status</option>
+                                <option value="1" {{ old('is_active') == '1' ? 'selected' : '' }}>Active</option>
+                                <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Inactive</option>
+                            </select>
                         </div>
 
                         <div class="d-flex justify-content-between">

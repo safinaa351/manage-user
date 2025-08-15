@@ -25,11 +25,8 @@ class UserController extends Controller
                 'email' => 'required|email:rfc,dns|unique:users',
                 'phone' => 'required|numeric|digits_between:10,15',
                 'department' => 'required|string|max:255',
-                'is_active' => 'boolean'
+                'is_active' => 'required|boolean'
             ]);
-
-            // default value is_active is true
-            $validatedData['is_active'] = $validatedData['is_active'] ?? true;
 
             $user = User::create($validatedData);
 
@@ -155,10 +152,8 @@ class UserController extends Controller
             'email' => 'required|email:rfc,dns|unique:users',
             'phone' => 'required|numeric|digits_between:10,15',
             'department' => 'required|string|max:255',
-            'is_active' => 'boolean'
+            'is_active' => 'required|boolean'
         ]);
-
-        $validatedData['is_active'] = $validatedData['is_active'] ?? true;
 
         User::create($validatedData);
 
@@ -180,10 +175,8 @@ class UserController extends Controller
             'email' => 'required|email:rfc,dns|unique:users,email,' . $id,
             'phone' => 'required|numeric|digits_between:10,15',
             'department' => 'required|string|max:255',
-            'is_active' => 'boolean'
+            'is_active' => 'required|boolean'
         ]);
-
-        $validatedData['is_active'] = $request->has('is_active') ? true : false;
 
         $user->update($validatedData);
 
