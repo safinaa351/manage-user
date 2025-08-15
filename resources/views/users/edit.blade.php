@@ -33,7 +33,7 @@
                         <div class="mb-3">
                             <label for="department" class="form-label">Department *</label>
                             <input type="text" class="form-control" id="department" name="department" 
-                                    value="{{ old('department') }}" required 
+                                    value="{{ old('department', $user->department) }}" required 
                                     placeholder="Enter department name">
                         </div>
 
