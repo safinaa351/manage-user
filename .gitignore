@@ -59,4 +59,3 @@ phpunit.xml
 # Build artifacts
 public/hot
 public/storage
-public/build
