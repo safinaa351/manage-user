@@ -2,4 +2,3 @@
 healthcheckPath = "/"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
-startCommand = "/usr/local/bin/start.sh"
