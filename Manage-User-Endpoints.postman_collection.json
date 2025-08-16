@@ -1,0 +1,83 @@
+{
+	"info": {
+		"_postman_id": "8e7ed5b7-956b-4cf2-9a2f-686d19242e41",
+		"name": "Manage-User-Endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "39617529"
+	},
+	"item": [
+		{
+			"name": "see all user",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"{{$randomFirstName}}\",\n    \"lastName\": \"{{$randomLastName}}\",\n    \"createdAt\": \"{{$isoTimestamp}}\",\n    \"address\": {\n        \"line1\": \"{{$randomStreetAddress}}\",\n        \"line2\": \"{{$randomCity}}\",\n        \"country\": \"{{$randomCountryCode}}\"\n    }\n}"
+				},
+				"url": "{{baseUrl}}/api/users"
+			},
+			"response": []
+		},
+		{
+			"name": "store new user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Safina\",\r\n  \"email\": \"safina@example.com\",\r\n  \"phone\": \"081234567890\",\r\n  \"department\": \"IT\",\r\n  \"is_active\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/api/users"
+			},
+			"response": []
+		},
+		{
+			"name": "get user by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/api/users/2"
+			},
+			"response": []
+		},
+		{
+			"name": "edit user by id",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Anaxagoras\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}api/users/2"
+			},
+			"response": []
+		},
+		{
+			"name": "delete user by id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "{{baseUrl}}/api/users/2"
+			},
+			"response": []
+		}
+	]
+}
