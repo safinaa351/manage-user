@@ -82,7 +82,7 @@ npm run build
 php artisan serve
 ```
 
-Aplikasi akan tersedia di: `http://localhost:8000`
+Aplikasi dapat diakses di: `https://manage-user-production.up.railway.app/`
 
 ## 📱 Interface Web
 
@@ -95,6 +95,8 @@ Akses aplikasi melalui browser untuk menggunakan interface web:
 
 ## 🔌 API Documentation
 
-Base URL: `http://localhost:8000/api`
+Base URL: `https://manage-user-production.up.railway.app/`
 
-### Postman Collection Link
+### Testing API dengan postman gunakan Manage-User-Endpoints.postman_collection.json di atas.
+
+
